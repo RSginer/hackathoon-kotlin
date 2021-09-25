@@ -42,6 +42,13 @@ internal class BankControllerTest {
                 }
         }
 
+
+    }
+
+    @Nested
+    @DisplayName("getBank()")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetBank {
         @Test
         fun `should return the bank with the given account number`() {
             val accountNumber = 12345
