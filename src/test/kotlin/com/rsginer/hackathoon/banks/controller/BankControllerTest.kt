@@ -71,7 +71,6 @@ internal class BankControllerTest {
                 .andDo { print() }
                 .andExpect {
                     status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
                 }
         }
     }
