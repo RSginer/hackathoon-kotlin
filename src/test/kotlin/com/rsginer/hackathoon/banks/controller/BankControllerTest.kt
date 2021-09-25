@@ -63,6 +63,17 @@ internal class BankControllerTest {
 
         }
 
+        @Test
+        fun `should return 404 Not found if the account number does not exist`() {
+            val accountNumber = "does_not_exist"
+
+            mockMvc.get("/api/banks/$accountNumber")
+                .andDo { print() }
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                }
+        }
     }
     
 
