@@ -1,5 +1,7 @@
 package com.rsginer.hackathoon.banks.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.rsginer.hackathoon.banks.model.Bank
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -11,16 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest
 @AutoConfigureMockMvc
-internal class BankControllerTest {
-
-    @Autowired
-    lateinit var mockMvc: MockMvc
+internal class BankControllerTest @Autowired constructor(
+    val mockMvc: MockMvc,
+    val objectMapper: ObjectMapper
+) {
 
     @Nested
-    @DisplayName("getBanks()")
+    @DisplayName("GET /api/banks")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetBanks {
         @Test
@@ -41,12 +44,10 @@ internal class BankControllerTest {
                     }
                 }
         }
-
-
     }
 
     @Nested
-    @DisplayName("getBank()")
+    @DisplayName("GET /api/banks/{accountNumber}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetBank {
         @Test
@@ -74,6 +75,39 @@ internal class BankControllerTest {
                 }
         }
     }
-    
+
+    @Nested
+    @DisplayName("POST /api/banks")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class PostNewBank {
+
+        @Test
+        fun `should add new bank`() {
+            val newBank = Bank("54321", 34.0, 2)
+
+            mockMvc.post("/api/banks") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(newBank)
+            }
+                .andDo { print() }
+                .andExpect {
+                    status { isCreated() }
+                    jsonPath("$.accountNumber") { value("54321") }
+                    jsonPath("$.trust") { value("34.0") }
+                }
+        }
+
+        @Test
+        fun `should return BAD REQUEST if accountNumber already exist`() {
+            val invalidBank = Bank("12345", 20.0, 2)
+
+            mockMvc.post("/api/banks") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(invalidBank)
+            }
+                .andDo { print() }
+                .andExpect { status { isBadRequest() } }
+        }
+    }
 
 }

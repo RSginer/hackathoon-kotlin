@@ -12,4 +12,6 @@ class BankService(
 
     fun getBank(accountNumber: String) = dataSource.retrieveBank(accountNumber)
 
+    fun addBank(bank: Bank) = dataSource.createBank(bank)
+
 }
